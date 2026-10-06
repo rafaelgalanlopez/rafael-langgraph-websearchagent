@@ -1,0 +1,3 @@
+ipykernel: Kernel de notebooks en UV
+Tavily: Herramienta de busqueda en internet para los modelos de IA
+Langchain: Herramienta para crear sistemas de IA usando modelos
