@@ -56,14 +56,10 @@ def calculate_token_usage(response, current_state: dict) -> dict:
     c_tokens = token_usage.get("output_tokens", 0)
     t_tokens = token_usage.get("total_tokens", p_tokens + c_tokens)
 
-    is_tool_call = bool(response.tool_calls)
-    tool_tokens_added = t_tokens if is_tool_call else 0
-
     return {
         "total_tokens": current_state.get("total_tokens", 0) + t_tokens,
         "prompt_tokens": current_state.get("prompt_tokens", 0) + p_tokens,
         "completion_tokens": current_state.get("completion_tokens", 0) + c_tokens,
-        "tool_tokens": current_state.get("tool_tokens", 0) + tool_tokens_added,
     }
 
 #7.1 HERRAMIENTA AUXILIAR: IMPRIMIR REPORTE DE TOKENS Y HERRAMIENTAS
@@ -120,11 +116,14 @@ def llm_call(state: dict):
 def tool_node(state: dict):
     result = []
     last_message = state["messages"][-1]
+    added_tool_tokens = 0
 
     for tool_call in last_message.tool_calls:
         tool = tools_by_name[tool_call["name"]]
         observation = tool.invoke(tool_call["args"])
         content_str = str(observation)
+
+        added_tool_tokens += max(1, len(content_str) // 4)
 
         print_tool_message(
             tool_name=tool_call["name"],
@@ -139,7 +138,11 @@ def tool_node(state: dict):
             )
         )
 
-    return {"messages": result}
+    return {
+        "messages": result,
+        # Acumulamos únicamente los tokens generados por los ToolMessages
+        "tool_tokens": state.get("tool_tokens", 0) + added_tool_tokens
+    }
 
 #10 NODO FINAL: Retorna el consolidado de tokens y herramientas como un AIMessage al final del flujo
 def report_node(state: dict):
