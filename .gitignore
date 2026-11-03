@@ -1,2 +1,29 @@
-.env
+# Entorno Virtual
 .venv/
+venv/
+env/
+
+# Secretos y Variables de Entorno
+.env
+.env.*
+!.env.example
+
+# Caché de Python y Compilación
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Archivos de Construcción y Empaquetado
+dist/
+build/
+*.egg-info/
+
+# IDEs y Sistema Operativo
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
